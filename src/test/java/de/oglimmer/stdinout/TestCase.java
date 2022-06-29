@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class TestCase {
+public class TestCase implements Closeable {
 
     class TestStep {
         List<String> inputs;
@@ -101,6 +101,12 @@ public class TestCase {
     private InputStream inSaved;
     private PrintStream outSaved;
 
+    private TestCase() {
+        saveDefaultStdInOut();
+
+        System.setIn(new TestInputStream());
+        System.setOut(new PrintStream(new TestOutputStream()));
+    }
 
     public static TestCase build() {
         return new TestCase();
@@ -116,17 +122,7 @@ public class TestCase {
         return this;
     }
 
-    public TestCase setup() {
-        saveDefaultStdInOut();
-
-        System.setIn(new TestInputStream());
-        System.setOut(new PrintStream(new TestOutputStream()));
-
-        return this;
-    }
-
-
-    public void completeTesting() {
+    public void close() {
         restoreDefaultStdInOut();
 
         System.out.println("Tests successfully completed.");
